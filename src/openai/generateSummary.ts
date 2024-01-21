@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
+import { AppConfig } from '../AppConfig';
 
 const openai = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'], // This is the default and can be omitted
+  apiKey: AppConfig.OpenAIApiKey,
 });
 
 export async function generateSummary(input: string): Promise<string> {
