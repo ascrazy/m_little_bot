@@ -5,8 +5,10 @@ import { generateSummary } from './openai/generateSummary';
 import { toParagraphs } from './telegram/toParagraphs';
 import { addToInbox } from './notion/addToInbox';
 import { createCollapsibleJSONBlock } from './notion/createCollapsibleJSONBlock';
+import { useNewReplies } from "telegraf/future";
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN ?? '');
+bot.use(useNewReplies());
 bot.on(message('text'), async (ctx) => {
   try {
     const summary = await generateSummary(ctx.message.text);
@@ -23,7 +25,7 @@ bot.on(message('text'), async (ctx) => {
 });
 bot.launch();
 
-Bun.serve({
+const http = Bun.serve({
   port: process.env.PORT ?? 8080,
   fetch(req) {
     return new Response('m_little_bot');
@@ -31,5 +33,12 @@ Bun.serve({
 });
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => {
+  bot.stop('SIGINT')
+  http.stop(true)
+});
+
+process.once('SIGTERM', () => {
+  bot.stop('SIGTERM')
+  http.stop(true)
+});
