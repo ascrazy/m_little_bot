@@ -1,10 +1,10 @@
 import { Telegraf } from 'telegraf';
-import { toNotionBlocks } from './src/notion/toNotionBlocks';
+import { toNotionBlocks } from './notion/toNotionBlocks';
 import { message } from 'telegraf/filters';
-import { generateSummary } from './src/openai/generateSummary';
-import { toParagraphs } from './src/telegram/toParagraphs';
-import { addToInbox } from './src/notion/addToInbox';
-import { createCollapsibleJSONBlock } from './src/notion/createCollapsibleJSONBlock';
+import { generateSummary } from './openai/generateSummary';
+import { toParagraphs } from './telegram/toParagraphs';
+import { addToInbox } from './notion/addToInbox';
+import { createCollapsibleJSONBlock } from './notion/createCollapsibleJSONBlock';
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN ?? '');
 bot.on(message('text'), async (ctx) => {

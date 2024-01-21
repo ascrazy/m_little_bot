@@ -1,6 +1,6 @@
 {
   "name": "m_little_bot",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest"
@@ -19,6 +19,7 @@
     "zod": "^3.22.4"
   },
   "scripts": {
+    "dev": "bun src/index.ts",
     "prepare": "bun husky install"
   },
   "lint-staged": {

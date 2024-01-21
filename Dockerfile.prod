@@ -1,0 +1,12 @@
+FROM oven/bun:alpine
+
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+COPY package.json bun.lockb /app/
+COPY src/ /app/src/
+
+RUN bun install
+
+CMD ["bun", "./src/index.ts"]
