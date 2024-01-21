@@ -1,11 +1,12 @@
 import {describe, test, expect} from 'bun:test';
 import { diff } from 'deep-object-diff';
 
-import { TelegramTextMessageToNotionPageContent } from "./notion";
+import { toNotionBlocks } from "./toNotionBlocks";
+import { toParagraphs } from '../telegram/toParagraphs';
 
-describe('TelegramTextMessageToNotionPageContent', () => {
+describe('toNotionBlocks', () => {
     test('plain text paragraph', () => {
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World!\n\nHey Jude!', []), [
+        expect(diff(toNotionBlocks(toParagraphs('Hello World!\n\nHey Jude!', [])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -36,11 +37,11 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with URL', () => {             
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World https://example.com', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World https://example.com', [{
             offset: 12,
             length: 19,
             type: "url",
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -65,12 +66,12 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with link', () => {        
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World with link', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World with link', [{
             offset: 12,
             length: 9,
             type: "text_link",
             url: 'https://example.com'
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -95,11 +96,11 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with bold text', () => {        
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World bold text', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World bold text', [{
             offset: 12,
             length: 9,
             type: "bold",
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -126,11 +127,11 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with underline text', () => {        
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World underline text', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World underline text', [{
             offset: 12,
             length: 14,
             type: "underline",
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -157,11 +158,11 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with italic text', () => {        
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World italic text', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World italic text', [{
             offset: 12,
             length: 11,
             type: "italic",
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -188,11 +189,11 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with strikethrough text', () => {        
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World strikethrough text', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World strikethrough text', [{
             offset: 12,
             length: 18,
             type: "strikethrough",
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -219,11 +220,11 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('paragraph with inline code', () => {        
-        expect(diff(TelegramTextMessageToNotionPageContent('Hello World console.log("Hi")', [{
+        expect(diff(toNotionBlocks(toParagraphs('Hello World console.log("Hi")', [{
             offset: 12,
             length: 17,
             type: "code",
-        }]), [
+        }])), [
             {
                 "object": "block",
                 "paragraph": {
@@ -250,7 +251,7 @@ describe('TelegramTextMessageToNotionPageContent', () => {
     })
 
     test('compound example', () => {          
-        expect(diff(TelegramTextMessageToNotionPageContent(
+        expect(diff(toNotionBlocks(toParagraphs(
             "Это тестовы текст со ссылками https://bfe.dev/ \n\nИ форматированием\n\nИ с кодом\n\nИ с дополнительной ссылкой",
             [
                 {
@@ -272,7 +273,7 @@ describe('TelegramTextMessageToNotionPageContent', () => {
                     url: "https://example.com/",
                 }
             ]
-        ), [
+        )), [
             {
                 "object": "block",
                 "paragraph": {

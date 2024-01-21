@@ -1,35 +1,8 @@
-import { Client } from '@notionhq/client';
-import type { BlockObjectRequest, CreateCommentParameters, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import type { MessageEntity } from 'telegraf/types';
-import { toParagraphs, type Paragraph } from './telegram/toParagraphs';
+import type { BlockObjectRequest, CreateCommentParameters } from '@notionhq/client/build/src/api-endpoints';
+import { type Paragraph } from '../telegram/toParagraphs';
 
-const client = new Client({ auth: process.env.NOTION_ACCESS_TOKEN });
-
-export async function addToInbox(title: string, content: BlockObjectRequest[]): Promise<string> {
-    const response = await client.pages.create({
-        "parent": {
-            "type": "database_id",
-            "database_id": process.env.NOTION_DATABASE_ID ?? ''
-        },
-        "properties": {
-            "Name": {
-                "title": [
-                    {
-                        "text": {
-                            "content": title
-                        }
-                    }
-                ]
-            },
-        },
-        "children": content
-    })
-
-    return (response as PageObjectResponse).url    
-}
-
-export function TelegramTextMessageToNotionPageContent(text: string, entities: MessageEntity[]): BlockObjectRequest[] {    
-    return toParagraphs(text, entities).map((paragraph, index) => {
+export function toNotionBlocks(paragraphs: Paragraph[]): BlockObjectRequest[] {    
+    return paragraphs.map((paragraph, index) => {
         const rich_text = toRichText(paragraph)
 
         return {
