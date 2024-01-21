@@ -23,6 +23,13 @@ bot.on(message('text'), async (ctx) => {
 });
 bot.launch();
 
+Bun.serve({
+  port: process.env.PORT ?? 8080,
+  fetch(req) {
+    return new Response('m_little_bot');
+  },
+});
+
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
