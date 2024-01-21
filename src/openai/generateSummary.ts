@@ -11,11 +11,11 @@ export async function generateSummary(input: string): Promise<string> {
         {
           role: 'system',
           content:
-            'generate short one line summary for the following message. restrict maximum length of the summary to 100 characters. reply with summary only',
+            'provide a summary of the message below in no more than 100 characters, reply with summary only',
         },
         { role: 'user', content: input },
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4-1106-preview',
     },
     {
       maxRetries: 5,
