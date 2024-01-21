@@ -37,7 +37,6 @@ function splitParagraphs(inputString: string, entities: MessageEntity[]): Messag
 
     // Use regex.exec in a loop to find matches and their indices
     for (const match of inputString.matchAll(/\n{1,}/g)) {
-        console.log('match', {index: match.index, length: match[0].length})
         if (!match.index) {
             continue;
         }

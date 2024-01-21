@@ -249,30 +249,7 @@ describe('TelegramTextMessageToNotionPageContent', () => {
         ])).toEqual({})               
     })
 
-    test('compound example', () => {  
-        console.log(JSON.stringify(TelegramTextMessageToNotionPageContent(
-            "Это тестовы текст со ссылками https://bfe.dev/ \n\nИ форматированием\n\nИ с кодом\n\nИ с дополнительной ссылкой",
-            [
-                {
-                    offset: 30,
-                    length: 16,
-                    type: "url",
-                }, {
-                    offset: 51,
-                    length: 15,
-                    type: "bold",
-                }, {
-                    offset: 72,
-                    length: 5,
-                    type: "code",
-                }, {
-                    offset: 98,
-                    length: 7,
-                    type: "text_link",
-                    url: "https://example.com/",
-                }
-            ]
-        ), null, 2))      
+    test('compound example', () => {          
         expect(diff(TelegramTextMessageToNotionPageContent(
             "Это тестовы текст со ссылками https://bfe.dev/ \n\nИ форматированием\n\nИ с кодом\n\nИ с дополнительной ссылкой",
             [
