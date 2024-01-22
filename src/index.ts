@@ -12,16 +12,26 @@ const bot = new Telegraf(AppConfig.TelegramBotToken);
 bot.use(useNewReplies());
 bot.on(message('text'), async (ctx) => {
   try {
-    const summary = await generateSummary(ctx.message.text);
-    const page_url = await addToInbox(summary ?? 'Could not generate summary', [
+    const summary =
+      (await generateSummary(ctx.message.text)) ?? 'Could not generate summary';
+    const page_url = await addToInbox(summary, [
       ...toNotionBlocks(
         toParagraphs(ctx.message.text, ctx.message.entities ?? []),
       ),
       createCollapsibleJSONBlock('Original Telegram Message JSON', ctx.message),
     ]);
-    ctx.reply(page_url);
+    ctx.reply(`✅ ${summary}`, {
+      entities: [
+        {
+          type: 'text_link',
+          offset: 2,
+          length: summary.length,
+          url: page_url,
+        },
+      ],
+    });
   } catch (err) {
-    ctx.reply((err as Error).message);
+    ctx.reply(`🆘 ${(err as Error).message}`);
   }
 });
 bot.launch();
