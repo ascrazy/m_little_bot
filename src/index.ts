@@ -7,25 +7,30 @@ import { addToInbox } from './notion/addToInbox';
 import { createCollapsibleJSONBlock } from './notion/createCollapsibleJSONBlock';
 import { useNewReplies } from 'telegraf/future';
 import { AppConfig } from './AppConfig';
+import { createNoteFromTextMessage } from './Note';
 
 const bot = new Telegraf(AppConfig.TelegramBotToken);
 bot.use(useNewReplies());
 bot.on(message('text'), async (ctx) => {
   try {
-    const summary =
-      (await generateSummary(ctx.message.text)) ?? 'Could not generate summary';
-    const page_url = await addToInbox(summary, [
-      ...toNotionBlocks(
-        toParagraphs(ctx.message.text, ctx.message.entities ?? []),
-      ),
-      createCollapsibleJSONBlock('Original Telegram Message JSON', ctx.message),
-    ]);
-    ctx.reply(`✅ ${summary}`, {
+    const note = await createNoteFromTextMessage(ctx.message);
+    const page_url = await addToInbox({
+      ...note,
+      page_content: [
+        ...note.page_content,
+        createCollapsibleJSONBlock(
+          'Original Telegram Message JSON',
+          ctx.message,
+        ),
+      ],
+    });
+
+    ctx.reply(`✅ ${note.summary}`, {
       entities: [
         {
           type: 'text_link',
           offset: 2,
-          length: summary.length,
+          length: note.summary.length,
           url: page_url,
         },
       ],

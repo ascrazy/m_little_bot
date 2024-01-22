@@ -4,13 +4,11 @@ import type {
   PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import { AppConfig } from '../AppConfig';
+import type { Note } from '../Note';
 
 const client = new Client({ auth: AppConfig.Notion.AccessToken });
 
-export async function addToInbox(
-  title: string,
-  content: BlockObjectRequest[],
-): Promise<string> {
+export async function addToInbox(note: Note): Promise<string> {
   const response = await client.pages.create({
     parent: {
       type: 'database_id',
@@ -21,13 +19,13 @@ export async function addToInbox(
         title: [
           {
             text: {
-              content: title,
+              content: note.summary,
             },
           },
         ],
       },
     },
-    children: content,
+    children: note.page_content,
   });
 
   return (response as PageObjectResponse).url;
