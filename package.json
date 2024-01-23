@@ -12,6 +12,8 @@
     "@koa/router": "^12.0.1",
     "@mozilla/readability": "^0.5.0",
     "@notionhq/client": "^2.2.14",
+    "@telegraf/entity": "^0.4.0",
+    "@tryfabric/martian": "^1.2.4",
     "@types/jsdom": "^21.1.6",
     "@types/koa__router": "^12.0.4",
     "deep-object-diff": "^1.1.9",

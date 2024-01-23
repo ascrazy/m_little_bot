@@ -49,7 +49,8 @@ export async function generateUrlSummary__openai(
           content:
             'provide a short and long summaries of the content of webpage at the URL attached below. ' +
             'provide both summaries in the same language as the source article. ' +
-            'keep short summary under 100 characters maximum, keep long summary under 500 characters maximum. ' +
+            'keep short summary under 100 characters maximum and use plain text only. ' +
+            'keep long summary under 500 characters maximum and use basic markdown for formatting. ' +
             'reply with JSON of the following format {short: string; long: string}. ' +
             'reply with JSON only',
         },

@@ -1,10 +1,10 @@
 import type { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints';
-import type { Message, MessageEntity } from 'telegraf/types';
+import type { Message } from 'telegraf/types';
 import { generateSummary } from './openai/generateSummary';
-import { toParagraphs } from './telegram/toParagraphs';
-import { toNotionBlocks } from './notion/toNotionBlocks';
 import { generateUrlSummary } from './openai/generateUrlSummary';
 import { z } from 'zod';
+import { toMarkdownV2 } from '@telegraf/entity';
+import { markdownToBlocks } from '@tryfabric/martian';
 
 export type Note = {
   summary: string;
@@ -21,13 +21,16 @@ export async function createNoteFromTextMessage(
   const summary =
     (await generateSummary(message.text)) ?? 'Could not generate summary';
 
-  const page_content = toNotionBlocks(
-    toParagraphs(message.text, message.entities ?? []),
+  const page_content = markdownToBlocks(
+    toMarkdownV2({
+      text: message.text,
+      entities: message.entities,
+    }),
   );
 
   return {
     summary,
-    page_content,
+    page_content: page_content as BlockObjectRequest[],
   };
 }
 
@@ -54,7 +57,7 @@ export async function createNoteFromUrlMessage(
         ],
       },
     },
-    ...toNotionBlocks(toParagraphs(summary.long, [])),
+    ...(markdownToBlocks(summary.long) as BlockObjectRequest[]),
   ];
 
   return {
