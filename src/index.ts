@@ -1,13 +1,11 @@
 import { Telegraf } from 'telegraf';
-import { toNotionBlocks } from './notion/toNotionBlocks';
 import { message } from 'telegraf/filters';
-import { generateSummary } from './openai/generateSummary';
-import { toParagraphs } from './telegram/toParagraphs';
 import { addToInbox } from './notion/addToInbox';
 import { createCollapsibleJSONBlock } from './notion/createCollapsibleJSONBlock';
 import { useNewReplies } from 'telegraf/future';
 import { AppConfig } from './AppConfig';
 import { createNoteFromTextMessage } from './Note';
+import { createHttpServer } from './http/createHttpServer';
 
 const bot = new Telegraf(AppConfig.TelegramBotToken);
 bot.use(useNewReplies());
@@ -25,7 +23,7 @@ bot.on(message('text'), async (ctx) => {
       ],
     });
 
-    ctx.reply(`✅ ${note.summary}`, {
+    ctx.reply(`📃 ${note.summary}`, {
       entities: [
         {
           type: 'text_link',
@@ -41,20 +39,13 @@ bot.on(message('text'), async (ctx) => {
 });
 bot.launch();
 
-const http = Bun.serve({
-  port: AppConfig.HttpPort,
-  fetch(req) {
-    return new Response('m_little_bot');
-  },
-});
+createHttpServer(bot).listen(AppConfig.HttpPort);
 
 // Enable graceful stop
 process.once('SIGINT', () => {
   bot.stop('SIGINT');
-  http.stop(true);
 });
 
 process.once('SIGTERM', () => {
   bot.stop('SIGTERM');
-  http.stop(true);
 });
