@@ -5,5 +5,6 @@ export const AppConfig = {
     DatabaseId: process.env.NOTION_DATABASE_ID ?? '',
   },
   OpenAIApiKey: process.env.OPENAI_API_KEY ?? '',
+  AppHost: process.env.HOST ?? 'http://localhost:8080',
   HttpPort: process.env.PORT ?? 8080,
 };

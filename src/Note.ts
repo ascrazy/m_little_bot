@@ -5,6 +5,9 @@ import { generateUrlSummary } from './openai/generateUrlSummary';
 import { z } from 'zod';
 import { toMarkdownV2 } from '@telegraf/entity';
 import { markdownToBlocks } from '@tryfabric/martian';
+import { AppConfig } from './AppConfig';
+import type { Telegram } from 'telegraf';
+import { createFileHandle, serializeFileHandle } from './http/FileHandle';
 
 export type Note = {
   summary: string;
@@ -64,4 +67,51 @@ export async function createNoteFromUrlMessage(
     summary: summary.short,
     page_content,
   };
+}
+
+export async function createNoteFromPhotoMessage(
+  tg: Telegram,
+  message: Message.PhotoMessage,
+): Promise<Note> {
+  let summary: string;
+  if (message.caption) {
+    summary =
+      (await generateSummary(message.caption)) ?? 'Could not generate summary';
+  } else {
+    // TODO: generate caption from image with openai
+    summary = 'Image (no caption)';
+  }
+
+  const page_content = [
+    {
+      object: 'block',
+      type: 'image',
+      image: {
+        type: 'external',
+        external: {
+          url: generatePhotoUrl(message),
+        },
+      },
+    },
+    ...(message.caption
+      ? markdownToBlocks(
+          toMarkdownV2({
+            text: message.caption,
+            entities: message.caption_entities,
+          }),
+        )
+      : []),
+  ];
+
+  return {
+    summary,
+    page_content: page_content as BlockObjectRequest[],
+  };
+}
+
+function generatePhotoUrl(message: Message.PhotoMessage): string {
+  return new URL(
+    `/file/${serializeFileHandle(createFileHandle(message.photo[message.photo.length - 1].file_id, '.jpg'))}`,
+    AppConfig.AppHost,
+  ).toString();
 }

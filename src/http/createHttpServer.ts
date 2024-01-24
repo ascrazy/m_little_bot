@@ -1,6 +1,9 @@
 import Router from '@koa/router';
 import Koa from 'koa';
+import mime from 'mime';
 import type { Telegraf } from 'telegraf';
+import { Readable } from 'stream';
+import { parseFileHandle } from './FileHandle';
 
 export const createHttpServer = (bot: Telegraf) => {
   const http = new Koa();
@@ -35,6 +38,30 @@ export const createHttpServer = (bot: Telegraf) => {
         status: 'error',
         error: (err as Error).message,
       };
+    }
+  });
+
+  router.get('/file/:file_handle', async (ctx) => {
+    try {
+      const file_handle = parseFileHandle(ctx.params.file_handle);
+      const url = await bot.telegram.getFileLink(file_handle.file_id);
+      const res = await fetch(url.toString());
+
+      if (!res.ok || !res.body) {
+        ctx.throw(500, 'Internal Server Error');
+      }
+
+      ctx.status = 200;
+      ctx.set(
+        'Content-Type',
+        mime.getType(url.pathname) ??
+          mime.getType(file_handle.extname) ??
+          'application/octet-stream',
+      );
+
+      ctx.body = Readable.fromWeb(res.body as any);
+    } catch (error) {
+      ctx.throw(500, 'Internal Server Error');
     }
   });
 

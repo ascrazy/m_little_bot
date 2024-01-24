@@ -6,6 +6,10 @@ const openai = new OpenAI({
 });
 
 export async function generateSummary(input: string): Promise<string> {
+  if (input.length < 200) {
+    return input.slice(0, 100);
+  }
+
   const response = await openai.chat.completions.create(
     {
       messages: [
