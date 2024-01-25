@@ -5,9 +5,8 @@ import { generateUrlSummary } from './openai/generateUrlSummary';
 import { z } from 'zod';
 import { toMarkdownV2 } from '@telegraf/entity';
 import { markdownToBlocks } from '@tryfabric/martian';
-import { AppConfig } from './AppConfig';
-import type { Telegram } from 'telegraf';
 import { createFileHandle, serializeFileHandle } from './http/FileHandle';
+import { getAppConfig } from './AppConfig';
 
 export type Note = {
   summary: string;
@@ -70,7 +69,6 @@ export async function createNoteFromUrlMessage(
 }
 
 export async function createNoteFromPhotoMessage(
-  tg: Telegram,
   message: Message.PhotoMessage,
 ): Promise<Note> {
   let summary: string;
@@ -112,6 +110,6 @@ export async function createNoteFromPhotoMessage(
 function generatePhotoUrl(message: Message.PhotoMessage): string {
   return new URL(
     `/file/${serializeFileHandle(createFileHandle(message.photo[message.photo.length - 1].file_id, '.jpg'))}`,
-    AppConfig.AppHost,
+    getAppConfig().AppHost,
   ).toString();
 }

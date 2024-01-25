@@ -1,12 +1,8 @@
 import OpenAI from 'openai';
-import { AppConfig } from '../AppConfig';
+import { getAppConfig } from '../AppConfig';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';
-
-const openai = new OpenAI({
-  apiKey: AppConfig.OpenAIApiKey,
-});
 
 const UrlSummarySchema = z.object({
   short: z.string(),
@@ -41,6 +37,10 @@ export async function generateUrlSummary(url: string): Promise<UrlSummary> {
 export async function generateUrlSummary__openai(
   url: string,
 ): Promise<UrlSummary> {
+  const openai = new OpenAI({
+    apiKey: getAppConfig().OpenAIApiKey,
+  });
+
   const response = await openai.chat.completions.create(
     {
       messages: [

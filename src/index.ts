@@ -3,12 +3,15 @@ import { message } from 'telegraf/filters';
 import { addToInbox } from './notion/addToInbox';
 import { createCollapsibleJSONBlock } from './notion/createCollapsibleJSONBlock';
 import { useNewReplies } from 'telegraf/future';
-import { AppConfig } from './AppConfig';
 import { createNoteFromPhotoMessage, createNoteFromTextMessage } from './Note';
 import { createHttpServer } from './http/createHttpServer';
+import { getAppConfig } from './AppConfig';
 
-const bot = new Telegraf(AppConfig.TelegramBotToken);
+getAppConfig();
+
+const bot = new Telegraf(getAppConfig().Telegram.BotToken);
 bot.use(useNewReplies());
+// bot.use(restrictSender(config.Telegram.AllowedSenders));
 bot.on(message('text'), async (ctx) => {
   try {
     const note = await createNoteFromTextMessage(ctx.message);
@@ -40,7 +43,7 @@ bot.on(message('text'), async (ctx) => {
 
 bot.on(message('photo'), async (ctx) => {
   try {
-    const note = await createNoteFromPhotoMessage(bot.telegram, ctx.message);
+    const note = await createNoteFromPhotoMessage(ctx.message);
     const page_url = await addToInbox({
       ...note,
       page_content: [
@@ -68,7 +71,7 @@ bot.on(message('photo'), async (ctx) => {
 });
 bot.launch();
 
-createHttpServer(bot).listen(AppConfig.HttpPort);
+createHttpServer(bot).listen(getAppConfig().HttpPort);
 
 // Enable graceful stop
 process.once('SIGINT', () => {

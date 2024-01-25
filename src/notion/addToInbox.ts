@@ -1,18 +1,15 @@
 import { Client } from '@notionhq/client';
-import type {
-  BlockObjectRequest,
-  PageObjectResponse,
-} from '@notionhq/client/build/src/api-endpoints';
-import { AppConfig } from '../AppConfig';
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { getAppConfig } from '../AppConfig';
 import type { Note } from '../Note';
 
-const client = new Client({ auth: AppConfig.Notion.AccessToken });
-
 export async function addToInbox(note: Note): Promise<string> {
-  const response = await client.pages.create({
+  const notion = new Client({ auth: getAppConfig().Notion.AccessToken });
+
+  const response = await notion.pages.create({
     parent: {
       type: 'database_id',
-      database_id: AppConfig.Notion.DatabaseId,
+      database_id: getAppConfig().Notion.DatabaseId,
     },
     properties: {
       Name: {
