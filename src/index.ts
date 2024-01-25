@@ -31,7 +31,7 @@ bot.on(message('text'), async (ctx) => {
       entities: [
         {
           type: 'text_link',
-          offset: 2,
+          offset: 3,
           length: note.summary.length,
           url: page_url,
         },
