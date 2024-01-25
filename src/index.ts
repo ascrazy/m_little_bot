@@ -6,12 +6,13 @@ import { useNewReplies } from 'telegraf/future';
 import { createNoteFromPhotoMessage, createNoteFromTextMessage } from './Note';
 import { createHttpServer } from './http/createHttpServer';
 import { getAppConfig } from './AppConfig';
+import { restrictSender } from './telegram/restrictSender';
 
 getAppConfig();
 
 const bot = new Telegraf(getAppConfig().Telegram.BotToken);
 bot.use(useNewReplies());
-// bot.use(restrictSender(config.Telegram.AllowedSenders));
+bot.use(restrictSender(getAppConfig().Telegram.AllowedSenders));
 bot.on(message('text'), async (ctx) => {
   try {
     const note = await createNoteFromTextMessage(ctx.message);
