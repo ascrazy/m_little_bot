@@ -8,6 +8,7 @@ const AppConfigSchema = z.object({
 	Notion: z.object({
 		AccessToken: z.string(),
 		DatabaseId: z.string(),
+		AppendDebug: z.boolean(),
 	}),
 	OpenAIApiKey: z.string(),
 	AppHost: z.string().url(),
@@ -27,6 +28,7 @@ function loadAppConfig(): AppConfig {
 		Notion: {
 			AccessToken: process.env.NOTION_ACCESS_TOKEN,
 			DatabaseId: process.env.NOTION_DATABASE_ID,
+			AppendDebug: process.env.NOTION_APPEND_DEBUG === "true",
 		},
 		OpenAIApiKey: process.env.OPENAI_API_KEY,
 		AppHost: process.env.HOST,

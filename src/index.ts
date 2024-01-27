@@ -7,6 +7,8 @@ import { createNoteFromPhotoMessage, createNoteFromTextMessage } from "./Note";
 import { createHttpServer } from "./http/createHttpServer";
 import { getAppConfig } from "./AppConfig";
 import { restrictSender } from "./telegram/restrictSender";
+import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
+import { createHeadingBlock } from "./createHeadingBlock";
 
 getAppConfig();
 
@@ -19,12 +21,14 @@ bot.on(message("text"), async (ctx) => {
 		const page_url = await addToInbox({
 			...note,
 			page_content: [
+				createHeadingBlock(ctx.message),
 				...note.page_content,
-				createCollapsibleJSONBlock(
-					"Original Telegram Message JSON",
-					ctx.message,
-				),
-			],
+				getAppConfig().Notion.AppendDebug &&
+					createCollapsibleJSONBlock(
+						"Original Telegram Message JSON",
+						ctx.message,
+					),
+			].filter(Boolean) as BlockObjectRequest[],
 		});
 
 		ctx.reply(`📃 ${note.summary}`, {
@@ -48,12 +52,14 @@ bot.on(message("photo"), async (ctx) => {
 		const page_url = await addToInbox({
 			...note,
 			page_content: [
+				createHeadingBlock(ctx.message),
 				...note.page_content,
-				createCollapsibleJSONBlock(
-					"Original Telegram Message JSON",
-					ctx.message,
-				),
-			],
+				getAppConfig().Notion.AppendDebug &&
+					createCollapsibleJSONBlock(
+						"Original Telegram Message JSON",
+						ctx.message,
+					),
+			].filter(Boolean) as BlockObjectRequest[],
 		});
 
 		ctx.reply(`📃 ${note.summary}`, {
