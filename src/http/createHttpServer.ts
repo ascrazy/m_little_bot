@@ -1,72 +1,72 @@
-import Router from '@koa/router';
-import Koa from 'koa';
-import mime from 'mime';
-import type { Telegraf } from 'telegraf';
-import { Readable } from 'stream';
-import { parseFileHandle } from './FileHandle';
+import Router from "@koa/router";
+import Koa from "koa";
+import mime from "mime";
+import type { Telegraf } from "telegraf";
+import { Readable } from "stream";
+import { parseFileHandle } from "./FileHandle";
 
 export const createHttpServer = (bot: Telegraf) => {
-  const http = new Koa();
+	const http = new Koa();
 
-  const router = new Router();
+	const router = new Router();
 
-  router.get('/', async (ctx) => {
-    try {
-      const me = await bot.telegram.getMe();
-      ctx.response.status = 200;
-      ctx.response.body = `Status: ok\nUsername: ${me.username}`;
-    } catch (err) {
-      ctx.response.status = 500;
-      ctx.response.body = `Status: error, Error: ${(err as Error).message}`;
-    }
-  });
+	router.get("/", async (ctx) => {
+		try {
+			const me = await bot.telegram.getMe();
+			ctx.response.status = 200;
+			ctx.response.body = `Status: ok\nUsername: ${me.username}`;
+		} catch (err) {
+			ctx.response.status = 500;
+			ctx.response.body = `Status: error, Error: ${(err as Error).message}`;
+		}
+	});
 
-  router.get('/status', async (ctx) => {
-    try {
-      const me = await bot.telegram.getMe();
+	router.get("/status", async (ctx) => {
+		try {
+			const me = await bot.telegram.getMe();
 
-      ctx.status = 200;
-      ctx.headers['content-type'] = 'application/json';
-      ctx.body = {
-        status: 'ok',
-        username: me.username,
-      };
-    } catch (err) {
-      ctx.status = 500;
-      ctx.headers['content-type'] = 'application/json';
-      ctx.body = {
-        status: 'error',
-        error: (err as Error).message,
-      };
-    }
-  });
+			ctx.status = 200;
+			ctx.headers["content-type"] = "application/json";
+			ctx.body = {
+				status: "ok",
+				username: me.username,
+			};
+		} catch (err) {
+			ctx.status = 500;
+			ctx.headers["content-type"] = "application/json";
+			ctx.body = {
+				status: "error",
+				error: (err as Error).message,
+			};
+		}
+	});
 
-  router.get('/file/:file_handle', async (ctx) => {
-    try {
-      const file_handle = parseFileHandle(ctx.params.file_handle);
-      const url = await bot.telegram.getFileLink(file_handle.file_id);
-      const res = await fetch(url.toString());
+	router.get("/file/:file_handle", async (ctx) => {
+		try {
+			const file_handle = parseFileHandle(ctx.params.file_handle);
+			const url = await bot.telegram.getFileLink(file_handle.file_id);
+			const res = await fetch(url.toString());
 
-      if (!res.ok || !res.body) {
-        ctx.throw(500, 'Internal Server Error');
-      }
+			if (!res.ok || !res.body) {
+				ctx.throw(500, "Internal Server Error");
+			}
 
-      ctx.status = 200;
-      ctx.set(
-        'Content-Type',
-        mime.getType(url.pathname) ??
-          mime.getType(file_handle.extname) ??
-          'application/octet-stream',
-      );
+			ctx.status = 200;
+			ctx.set(
+				"Content-Type",
+				mime.getType(url.pathname) ??
+					mime.getType(file_handle.extname) ??
+					"application/octet-stream",
+			);
 
-      ctx.body = Readable.fromWeb(res.body as any);
-    } catch (error) {
-      ctx.throw(500, 'Internal Server Error');
-    }
-  });
+			ctx.body = Readable.fromWeb(res.body as any);
+		} catch (error) {
+			ctx.throw(500, "Internal Server Error");
+		}
+	});
 
-  http.use(router.routes());
-  http.use(router.allowedMethods());
+	http.use(router.routes());
+	http.use(router.allowedMethods());
 
-  return http;
+	return http;
 };

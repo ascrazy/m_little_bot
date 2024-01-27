@@ -1,84 +1,84 @@
-import { Telegraf } from 'telegraf';
-import { message } from 'telegraf/filters';
-import { addToInbox } from './notion/addToInbox';
-import { createCollapsibleJSONBlock } from './notion/createCollapsibleJSONBlock';
-import { useNewReplies } from 'telegraf/future';
-import { createNoteFromPhotoMessage, createNoteFromTextMessage } from './Note';
-import { createHttpServer } from './http/createHttpServer';
-import { getAppConfig } from './AppConfig';
-import { restrictSender } from './telegram/restrictSender';
+import { Telegraf } from "telegraf";
+import { message } from "telegraf/filters";
+import { addToInbox } from "./notion/addToInbox";
+import { createCollapsibleJSONBlock } from "./notion/createCollapsibleJSONBlock";
+import { useNewReplies } from "telegraf/future";
+import { createNoteFromPhotoMessage, createNoteFromTextMessage } from "./Note";
+import { createHttpServer } from "./http/createHttpServer";
+import { getAppConfig } from "./AppConfig";
+import { restrictSender } from "./telegram/restrictSender";
 
 getAppConfig();
 
 const bot = new Telegraf(getAppConfig().Telegram.BotToken);
 bot.use(useNewReplies());
 bot.use(restrictSender(getAppConfig().Telegram.AllowedSenders));
-bot.on(message('text'), async (ctx) => {
-  try {
-    const note = await createNoteFromTextMessage(ctx.message);
-    const page_url = await addToInbox({
-      ...note,
-      page_content: [
-        ...note.page_content,
-        createCollapsibleJSONBlock(
-          'Original Telegram Message JSON',
-          ctx.message,
-        ),
-      ],
-    });
+bot.on(message("text"), async (ctx) => {
+	try {
+		const note = await createNoteFromTextMessage(ctx.message);
+		const page_url = await addToInbox({
+			...note,
+			page_content: [
+				...note.page_content,
+				createCollapsibleJSONBlock(
+					"Original Telegram Message JSON",
+					ctx.message,
+				),
+			],
+		});
 
-    ctx.reply(`📃 ${note.summary}`, {
-      entities: [
-        {
-          type: 'text_link',
-          offset: 3,
-          length: note.summary.length,
-          url: page_url,
-        },
-      ],
-    });
-  } catch (err) {
-    ctx.reply(`🆘 ${(err as Error).message}`);
-  }
+		ctx.reply(`📃 ${note.summary}`, {
+			entities: [
+				{
+					type: "text_link",
+					offset: 3,
+					length: note.summary.length,
+					url: page_url,
+				},
+			],
+		});
+	} catch (err) {
+		ctx.reply(`🆘 ${(err as Error).message}`);
+	}
 });
 
-bot.on(message('photo'), async (ctx) => {
-  try {
-    const note = await createNoteFromPhotoMessage(ctx.message);
-    const page_url = await addToInbox({
-      ...note,
-      page_content: [
-        ...note.page_content,
-        createCollapsibleJSONBlock(
-          'Original Telegram Message JSON',
-          ctx.message,
-        ),
-      ],
-    });
+bot.on(message("photo"), async (ctx) => {
+	try {
+		const note = await createNoteFromPhotoMessage(ctx.message);
+		const page_url = await addToInbox({
+			...note,
+			page_content: [
+				...note.page_content,
+				createCollapsibleJSONBlock(
+					"Original Telegram Message JSON",
+					ctx.message,
+				),
+			],
+		});
 
-    ctx.reply(`📃 ${note.summary}`, {
-      entities: [
-        {
-          type: 'text_link',
-          offset: 2,
-          length: note.summary.length,
-          url: page_url,
-        },
-      ],
-    });
-  } catch (err) {
-    ctx.reply(`🆘 ${(err as Error).message}`);
-  }
+		ctx.reply(`📃 ${note.summary}`, {
+			entities: [
+				{
+					type: "text_link",
+					offset: 2,
+					length: note.summary.length,
+					url: page_url,
+				},
+			],
+		});
+	} catch (err) {
+		ctx.reply(`🆘 ${(err as Error).message}`);
+	}
 });
 bot.launch();
 
 createHttpServer(bot).listen(getAppConfig().HttpPort);
 
 // Enable graceful stop
-process.once('SIGINT', () => {
-  bot.stop('SIGINT');
+process.once("SIGINT", () => {
+	bot.stop("SIGINT");
 });
 
-process.once('SIGTERM', () => {
-  bot.stop('SIGTERM');
+process.once("SIGTERM", () => {
+	bot.stop("SIGTERM");
 });

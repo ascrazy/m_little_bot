@@ -33,6 +33,6 @@
     "prepare": "bun husky install"
   },
   "lint-staged": {
-    "**/*": "bunx @biomejs/biome check --apply"
+    "**/*": "bunx @biomejs/biome format --write"
   }
 }
