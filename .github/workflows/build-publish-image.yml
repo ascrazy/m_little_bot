@@ -1,7 +1,9 @@
 name: Build and Publish Image
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 env:
   DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}

@@ -35,6 +35,6 @@
     "lint": "bunx @biomejs/biome lint --apply ."
   },
   "lint-staged": {
-    "**/*": "bunx @biomejs/biome format --write"
+    "**/*": "bunx @biomejs/biome format --write --files-ignore-unknown=true --no-errors-on-unmatched"
   }
 }
