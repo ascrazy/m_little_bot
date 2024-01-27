@@ -30,7 +30,9 @@
   },
   "scripts": {
     "dev": "bun src/index.ts",
-    "prepare": "bun husky install"
+    "prepare": "bun husky install",
+    "format": "bunx @biomejs/biome format --write .",
+    "lint": "bunx @biomejs/biome lint --apply ."
   },
   "lint-staged": {
     "**/*": "bunx @biomejs/biome format --write"

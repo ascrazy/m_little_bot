@@ -7,12 +7,19 @@
     "vscode": {
       "extensions": [
         "github.copilot",
-        "editorconfig.editorconfig",
         "streetsidesoftware.code-spell-checker",
         "ms-azuretools.vscode-docker",
         "github.vscode-github-actions",
         "yoavbls.pretty-ts-errors",
+        "biomejs.biome"
       ],
-    },
-  },
+      "settings": {
+        "editor.tabSize": 2,        
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "quickfix.biome": true
+        }
+      }
+    }
+  }
 }

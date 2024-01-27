@@ -59,6 +59,7 @@ export const createHttpServer = (bot: Telegraf) => {
 					"application/octet-stream",
 			);
 
+			// biome-ignore lint: lint/suspicious/noExplicitAny
 			ctx.body = Readable.fromWeb(res.body as any);
 		} catch (error) {
 			ctx.throw(500, "Internal Server Error");
