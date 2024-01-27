@@ -4,12 +4,12 @@ import type { Chat, Message, User } from "telegraf/types";
 import {
 	isMessageWithForwardOrigin,
 	type MessageWithForwardOrigin,
-} from "./types/MessageWithForwardOrigin";
-import type { RichTextItemRequest } from "./types/RichTextItemRequest";
-import type { MessageOrigin } from "./types/MessageOrigin";
+} from "../types/MessageWithForwardOrigin";
+import type { RichTextItemRequest } from "../types/RichTextItemRequest";
+import type { MessageOrigin } from "../types/MessageOrigin";
 
 export const createHeadingBlock = (
-	message: Message.TextMessage | Message.PhotoMessage,
+	message: Message.CommonMessage,
 ): BlockObjectRequest | undefined => {
 	if (!message.from) return;
 
