@@ -1,12 +1,19 @@
-FROM oven/bun:alpine
+FROM oven/bun:alpine AS builder
 
 RUN apk add --no-cache git
 
 WORKDIR /app
 
-COPY package.json bun.lockb /app/
-COPY src/ /app/src/
+COPY . /app
 
 RUN bun install
 
-CMD ["bun", "./src/index.ts"]
+RUN bun ./scripts/build.ts
+
+FROM oven/bun:alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/build /app
+
+CMD ["bun", "./index.js"]
