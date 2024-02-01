@@ -8,7 +8,8 @@ COPY . /app
 
 RUN bun install
 
-RUN bun ./scripts/build.ts
+RUN bun build --target=bun --outfile=build/index.js src/index.ts
+RUN bun build --target=bun --outfile=build/set-webhook.js scripts/set-webhook.ts
 
 FROM oven/bun:alpine
 
@@ -16,4 +17,4 @@ WORKDIR /app
 
 COPY --from=builder /app/build /app
 
-CMD ["bun", "./index.js"]
+CMD bun run ./set-webhook.js && bun run ./index.js

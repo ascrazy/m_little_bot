@@ -1,5 +1,4 @@
-import type { Message } from "telegraf/types";
-import type { MessageOrigin } from "./MessageOrigin";
+import { Message, MessageOrigin } from "grammy/types";
 
 export type MessageWithForwardOrigin = Message.CommonMessage & {
 	forward_origin: MessageOrigin;

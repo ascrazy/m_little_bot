@@ -1,12 +1,11 @@
 import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
 import { formatISO, fromUnixTime } from "date-fns";
-import type { Chat, Message, User } from "telegraf/types";
+import type { Chat, Message, MessageOrigin, User } from "grammy/types";
 import {
 	isMessageWithForwardOrigin,
 	type MessageWithForwardOrigin,
 } from "../types/MessageWithForwardOrigin";
 import type { RichTextItemRequest } from "../types/RichTextItemRequest";
-import type { MessageOrigin } from "../types/MessageOrigin";
 
 export const createHeadingBlock = (
 	message: Message.CommonMessage,

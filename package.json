@@ -4,33 +4,35 @@
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
-    "@chialab/esbuild-plugin-require-resolve": "^0.18.0",
+    "@cloudflare/workers-types": "^4.20240129.0",
+    "@telegraf/types": "^6.9.1",
     "@types/bun": "latest",
     "@types/jsdom": "^21.1.6",
-    "@types/koa__router": "^12.0.4",
-    "esbuild": "^0.20.0",
     "husky": "^9.0.10",
-    "lint-staged": "^15.2.1"
+    "lint-staged": "^15.2.1",
+    "wrangler": "^3.25.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@koa/router": "^12.0.1",
     "@mozilla/readability": "^0.5.0",
     "@notionhq/client": "^2.2.14",
     "@telegraf/entity": "^0.4.0",
     "@tryfabric/martian": "^1.2.4",
     "date-fns": "^3.3.1",
+    "grammy": "^1.20.3",
+    "hono": "^3.12.10",
     "jsdom": "^24.0.0",
-    "koa": "^2.15.0",
     "mime": "^4.0.1",
-    "openai": "^4.25.0",
-    "telegraf": "^4.15.3",
-    "zod": "^3.22.4"
+    "openai": "^4.25.0"
   },
   "scripts": {
-    "dev": "bun src/index.ts",
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build --target=bun --outfile=build/index.js src/index.ts",
+    "worker-dev": "wrangler dev src/index.ts",
+    "worker-build": "bun build --target=node --outfile=build/worker.js",
+    "worker-deploy": "bun worker-build && wrangler deploy --minify build/worker.js",
     "prepare": "bun husky install",
     "format": "bunx @biomejs/biome format --write .",
     "lint": "bunx @biomejs/biome lint --apply ."

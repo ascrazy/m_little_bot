@@ -1,8 +1,7 @@
-import OpenAI from "openai";
-import { getAppConfig } from "../AppConfig";
 import { z } from "zod";
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
+import { AppContext } from "../AppContext";
 
 const UrlSummarySchema = z.object({
 	short: z.string(),
@@ -22,7 +21,10 @@ function parseUrlSummary(input: string): UrlSummary {
 	}
 }
 
-export async function generateUrlSummary(url: string): Promise<UrlSummary> {
+export async function generateUrlSummary(
+	app_ctx: AppContext,
+	url: string,
+): Promise<UrlSummary> {
 	try {
 		return await generateUrlSummary__readability(url);
 	} catch (error) {
@@ -30,18 +32,15 @@ export async function generateUrlSummary(url: string): Promise<UrlSummary> {
 			`Failed to generateUrlSummary__readability: ${(error as Error).message}`,
 		);
 
-		return await generateUrlSummary__openai(url);
+		return await generateUrlSummary__openai(app_ctx, url);
 	}
 }
 
 export async function generateUrlSummary__openai(
+	app_ctx: AppContext,
 	url: string,
 ): Promise<UrlSummary> {
-	const openai = new OpenAI({
-		apiKey: getAppConfig().OpenAIApiKey,
-	});
-
-	const response = await openai.chat.completions.create(
+	const response = await app_ctx.getOpenAI().chat.completions.create(
 		{
 			messages: [
 				{
