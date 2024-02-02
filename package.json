@@ -6,7 +6,11 @@
     "@biomejs/biome": "1.5.3",
     "@chialab/esbuild-plugin-require-resolve": "^0.18.0",
     "@types/bun": "latest",
-    "esbuild": "^0.20.0"
+    "@types/jsdom": "^21.1.6",
+    "@types/koa__router": "^12.0.4",
+    "esbuild": "^0.20.0",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.1"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -17,14 +21,9 @@
     "@notionhq/client": "^2.2.14",
     "@telegraf/entity": "^0.4.0",
     "@tryfabric/martian": "^1.2.4",
-    "@types/jsdom": "^21.1.6",
-    "@types/koa__router": "^12.0.4",
     "date-fns": "^3.3.1",
-    "deep-object-diff": "^1.1.9",
-    "husky": "^8.0.3",
     "jsdom": "^24.0.0",
     "koa": "^2.15.0",
-    "lint-staged": "^15.2.0",
     "mime": "^4.0.1",
     "openai": "^4.25.0",
     "telegraf": "^4.15.3",
