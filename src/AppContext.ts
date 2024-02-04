@@ -1,7 +1,7 @@
-import OpenAI from "openai";
 import { Client as NotionClient } from "@notionhq/client";
 import { Context } from "hono";
 import { env } from "hono/adapter";
+import OpenAI from "openai";
 
 export type AppContext = {
 	Settings: {

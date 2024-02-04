@@ -34,11 +34,9 @@
     "worker-dev": "wrangler dev src/index.ts",
     "worker-build": "bun build --target=node --outfile=build/worker.js",
     "worker-deploy": "bun worker-build && wrangler deploy --minify build/worker.js",
-    "prepare": "bun husky install",
-    "format": "bunx @biomejs/biome format --write .",
-    "lint": "bunx @biomejs/biome lint --apply ."
+    "prepare": "bun husky install"
   },
   "lint-staged": {
-    "**/*": "bunx @biomejs/biome format --write --files-ignore-unknown=true --no-errors-on-unmatched"
+    "**/*": "bunx @biomejs/biome check --apply --files-ignore-unknown=true --no-errors-on-unmatched"
   }
 }

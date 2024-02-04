@@ -1,10 +1,10 @@
 import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
-import { generateSummary } from "./openai/generateSummary";
 import { toMarkdownV2 } from "@telegraf/entity";
+import { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
 import { markdownToBlocks } from "@tryfabric/martian";
 import { MessageEntity } from "grammy/types";
-import { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
 import { AppContext } from "./AppContext";
+import { generateSummary } from "./openai/generateSummary";
 
 export type Note = {
 	summary: string;

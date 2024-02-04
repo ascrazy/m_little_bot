@@ -2,8 +2,8 @@ import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoint
 import { formatISO, fromUnixTime } from "date-fns";
 import type { Chat, Message, MessageOrigin, User } from "grammy/types";
 import {
-	isMessageWithForwardOrigin,
 	type MessageWithForwardOrigin,
+	isMessageWithForwardOrigin,
 } from "../types/MessageWithForwardOrigin";
 import type { RichTextItemRequest } from "../types/RichTextItemRequest";
 

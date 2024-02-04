@@ -1,9 +1,9 @@
-import { Bot } from "grammy";
-import { createNoteFromTextMessage } from "../Note";
-import { createHeadingBlock } from "../notion/createHeadingBlock";
-import { AppContext } from "../AppContext";
-import { createCollapsibleJSONBlock } from "../notion/createCollapsibleJSONBlock";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { Bot } from "grammy";
+import { AppContext } from "../AppContext";
+import { createNoteFromTextMessage } from "../Note";
+import { createCollapsibleJSONBlock } from "../notion/createCollapsibleJSONBlock";
+import { createHeadingBlock } from "../notion/createHeadingBlock";
 
 export const createGrammyBot = (app_ctx: AppContext, token: string) => {
 	const bot = new Bot(token);
