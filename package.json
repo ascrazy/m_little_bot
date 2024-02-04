@@ -25,7 +25,8 @@
     "hono": "^3.12.10",
     "jsdom": "^24.0.0",
     "mime": "^4.0.1",
-    "openai": "^4.25.0"
+    "openai": "^4.25.0",
+    "zod": "^3.22.4"
   },
   "scripts": {
     "dev": "bun run --hot src/index.ts",

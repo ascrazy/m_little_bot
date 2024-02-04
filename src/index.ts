@@ -1,12 +1,21 @@
-import { webhookCallback } from "grammy";
+import { webhookCallback, Api as TelegramApi } from "grammy";
 import { Context, Hono } from "hono";
 import { env } from "hono/adapter";
 import { createAppContext } from "./AppContext";
 import { createGrammyBot } from "./telegram/createGrammyBot";
+import { parseFileHandle } from "./FileHandle";
+import { stream } from "hono/streaming";
+import mime from "mime";
 
 const createBotFromContext = (ctx: Context) => {
 	return createGrammyBot(
 		createAppContext(ctx),
+		env<{ TELEGRAM_BOT_TOKEN: string }>(ctx).TELEGRAM_BOT_TOKEN,
+	);
+};
+
+const createTelegramApiFromContext = (ctx: Context) => {
+	return new TelegramApi(
 		env<{ TELEGRAM_BOT_TOKEN: string }>(ctx).TELEGRAM_BOT_TOKEN,
 	);
 };
@@ -47,6 +56,39 @@ app.get("/setup-webhook", async (ctx) => {
 		return ctx.json({ status: "ok", url }, 200);
 	} catch (err) {
 		return ctx.json({ status: "bad", message: (err as Error).message }, 500);
+	}
+});
+
+app.get("/file/:file_handle", async (ctx) => {
+	try {
+		const file_handle = parseFileHandle(ctx.req.param("file_handle"));
+		const api = createTelegramApiFromContext(ctx);
+		const file = await api.getFile(file_handle.file_id);
+		const url = new URL(
+			`/file/bot${
+				env<{ TELEGRAM_BOT_TOKEN: string }>(ctx).TELEGRAM_BOT_TOKEN
+				// biome-ignore lint: lint/style/no-non-null-assertion
+			}/${file.file_path!}`,
+			"https://api.telegram.org/",
+		);
+		const res = await fetch(url.toString());
+
+		if (!res.ok || !res.body) {
+			return ctx.text("Internal Server Error", 500);
+		}
+
+		ctx.header(
+			"Content-Type",
+			mime.getType(url.pathname) ??
+				mime.getType(file_handle.extname) ??
+				"application/octet-stream",
+		);
+		return stream(ctx, (str) => {
+			// biome-ignore lint: lint/style/no-non-null-assertion
+			return str.pipe(res.body!);
+		});
+	} catch (error) {
+		return ctx.text("Internal Server Error", 500);
 	}
 });
 
