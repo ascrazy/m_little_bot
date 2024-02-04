@@ -7,6 +7,7 @@ export type AppContext = {
 	Settings: {
 		Debug: boolean;
 		NotionDatabaseId: string;
+		MessageProxyBaseUrl: string;
 	};
 	getOpenAI: () => OpenAI;
 	getNotionClient: () => NotionClient;
@@ -21,6 +22,7 @@ export const createAppContext = (ctx: Context): AppContext => {
 			Debug: env<{ DEBUG: boolean }>(ctx).DEBUG,
 			NotionDatabaseId: env<{ NOTION_DATABASE_ID: string }>(ctx)
 				.NOTION_DATABASE_ID,
+			MessageProxyBaseUrl: env<{ HOST: string }>(ctx).HOST,
 		},
 		getOpenAI: () => {
 			if (!openai) {

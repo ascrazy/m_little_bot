@@ -2,8 +2,9 @@ import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoint
 import { toMarkdownV2 } from "@telegraf/entity";
 import { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
 import { markdownToBlocks } from "@tryfabric/martian";
-import { MessageEntity } from "grammy/types";
+import { Message, MessageEntity } from "grammy/types";
 import { AppContext } from "./AppContext";
+import { createFileHandle, serializeFileHandle } from "./FileHandle";
 import { generateSummary } from "./openai/generateSummary";
 
 export type Note = {
@@ -13,8 +14,7 @@ export type Note = {
 
 export async function createNoteFromTextMessage(
 	app_ctx: AppContext,
-	message: {
-		text: string;
+	message: Pick<Message.TextMessage, "text"> & {
 		entities?: MessageEntity[];
 	},
 ): Promise<Note> {
@@ -74,56 +74,61 @@ export async function createNoteFromTextMessage(
 // 	};
 // }
 
-// export async function createNoteFromPhotoMessage(
-// 	message: Message.PhotoMessage,
-// ): Promise<Note> {
-// 	let summary: string;
-// 	if (message.caption) {
-// 		summary =
-// 			(await generateSummary(message.caption)) ?? "Could not generate summary";
-// 	} else {
-// 		// TODO: generate caption from image with openai
-// 		summary = "Image (no caption)";
-// 	}
+export async function createNoteFromPhotoMessage(
+	app_ctx: AppContext,
+	message: Pick<Message.PhotoMessage, "photo" | "caption" | "caption_entities">,
+): Promise<Note> {
+	let summary: string;
+	if (message.caption) {
+		summary =
+			(await generateSummary(app_ctx, message.caption)) ??
+			"Could not generate summary";
+	} else {
+		// TODO: generate caption from image with openai
+		summary = "Image (no caption)";
+	}
 
-// 	const page_content = [
-// 		{
-// 			object: "block",
-// 			type: "image",
-// 			image: {
-// 				type: "external",
-// 				external: {
-// 					url: generatePhotoUrl(message),
-// 				},
-// 			},
-// 		},
-// 		...(message.caption
-// 			? markdownToBlocks(
-// 					toMarkdownV2({
-// 						text: message.caption,
-// 						entities:
-// 							message.caption_entities
-// 								?.map(toTelegrafMessageEntity)
-// 								.flatMap((f) => (f ? [f] : [])) ?? [],
-// 					}),
-// 			  )
-// 			: []),
-// 	];
+	const page_content = [
+		{
+			object: "block",
+			type: "image",
+			image: {
+				type: "external",
+				external: {
+					url: generatePhotoUrl(app_ctx, message),
+				},
+			},
+		},
+		...(message.caption
+			? markdownToBlocks(
+					toMarkdownV2({
+						text: message.caption,
+						entities:
+							message.caption_entities
+								?.map(toTelegrafMessageEntity)
+								.flatMap((f) => (f ? [f] : [])) ?? [],
+					}),
+			  )
+			: []),
+	];
 
-// 	return {
-// 		summary,
-// 		page_content: page_content as BlockObjectRequest[],
-// 	};
-// }
+	return {
+		summary,
+		page_content: page_content as BlockObjectRequest[],
+	};
+}
 
-// function generatePhotoUrl(message: Message.PhotoMessage): string {
-// 	return new URL(
-// 		`/file/${serializeFileHandle(
-// 			createFileHandle(message.photo[message.photo.length - 1].file_id, ".jpg"),
-// 		)}`,
-// 		getAppConfig().AppHost,
-// 	).toString();
-// }
+function generatePhotoUrl(
+	app_ctx: AppContext,
+	message: Pick<Message.PhotoMessage, "photo">,
+): string {
+	return new URL(
+		`/file/${serializeFileHandle(
+			createFileHandle(message.photo[message.photo.length - 1].file_id, ".jpg"),
+		)}`,
+		app_ctx.Settings.MessageProxyBaseUrl,
+	).toString();
+}
 
 function toTelegrafMessageEntity(
 	entity: MessageEntity,
