@@ -3,9 +3,12 @@ import { toMarkdownV2 } from "@telegraf/entity";
 import { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
 import { markdownToBlocks } from "@tryfabric/martian";
 import { Message, MessageEntity } from "grammy/types";
+import * as z from "zod";
 import { AppContext } from "./AppContext";
 import { createFileHandle, serializeFileHandle } from "./FileHandle";
+import { isWebpageUrl } from "./common/isWebpageUrl";
 import { generateSummary } from "./openai/generateSummary";
+import { generateUrlSummary } from "./openai/generateUrlSummary";
 
 export type Note = {
 	summary: string;
@@ -18,9 +21,9 @@ export async function createNoteFromTextMessage(
 		entities?: MessageEntity[];
 	},
 ): Promise<Note> {
-	// if (z.string().url().safeParse(message.text).success) {
-	// 	return createNoteFromUrlMessage(message);
-	// }
+	if (isWebpageUrl(message.text.trim())) {
+		return createNoteFromUrlMessage(app_ctx, message);
+	}
 
 	const summary =
 		(await generateSummary(app_ctx, message.text)) ??
@@ -42,37 +45,38 @@ export async function createNoteFromTextMessage(
 	};
 }
 
-// export async function createNoteFromUrlMessage(
-// 	message: Message.TextMessage,
-// ): Promise<Note> {
-// 	const summary = await generateUrlSummary(message.text);
+export async function createNoteFromUrlMessage(
+	app_ctx: AppContext,
+	message: Pick<Message.TextMessage, "text">,
+): Promise<Note> {
+	const summary = await generateUrlSummary(app_ctx, message.text.trim());
 
-// 	const page_content: BlockObjectRequest[] = [
-// 		{
-// 			object: "block",
-// 			type: "paragraph",
-// 			paragraph: {
-// 				rich_text: [
-// 					{
-// 						type: "text",
-// 						text: {
-// 							content: message.text,
-// 							link: {
-// 								url: message.text,
-// 							},
-// 						},
-// 					},
-// 				],
-// 			},
-// 		},
-// 		...(markdownToBlocks(summary.long) as BlockObjectRequest[]),
-// 	];
+	const page_content: BlockObjectRequest[] = [
+		{
+			object: "block",
+			type: "paragraph",
+			paragraph: {
+				rich_text: [
+					{
+						type: "text",
+						text: {
+							content: message.text,
+							link: {
+								url: message.text,
+							},
+						},
+					},
+				],
+			},
+		},
+		...(markdownToBlocks(summary.long) as BlockObjectRequest[]),
+	];
 
-// 	return {
-// 		summary: summary.short,
-// 		page_content,
-// 	};
-// }
+	return {
+		summary: summary.short,
+		page_content,
+	};
+}
 
 export async function createNoteFromPhotoMessage(
 	app_ctx: AppContext,
