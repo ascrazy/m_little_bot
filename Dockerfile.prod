@@ -8,8 +8,10 @@ COPY . /app
 
 RUN bun install
 
+# NOTE: set-webhook.js is built with target=node in order to avoid inlining process.env variables
+# https://stackoverflow.com/questions/77097759/bun-build-replace-references-to-env-vars-with-actual-values-when-bundling
+RUN bun build --target=node --outfile=build/set-webhook.js scripts/set-webhook.ts
 RUN bun build --target=bun --outfile=build/index.js src/index.ts
-RUN bun build --target=bun --outfile=build/set-webhook.js scripts/set-webhook.ts
 
 FROM oven/bun:alpine
 
@@ -17,4 +19,4 @@ WORKDIR /app
 
 COPY --from=builder /app/build /app
 
-CMD bun run ./set-webhook.js && bun run ./index.js
+CMD bun run set-webhook.js && bun run ./index.js
