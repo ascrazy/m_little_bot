@@ -96,7 +96,10 @@ export const createGrammyBot = (app_ctx: AppContext, token: string) => {
 				}),
 			);
 
-			const link_to_photo = `https://m-little-bot-attachments.ascrazy.me/${file_key}`;
+			const link_to_photo = app_ctx.Settings.StoragePublicUrl.replace(
+				"%file_key%",
+				file_key,
+			);
 
 			const note = await createNoteFromPhotoMessage(
 				app_ctx,

@@ -10,6 +10,7 @@ export type AppContext = {
 		NotionDatabaseId: string;
 		MessageProxyBaseUrl: string;
 		StorageBucketName: string;
+		StoragePublicUrl: string;
 	};
 	getOpenAI: () => OpenAI;
 	getNotionClient: () => NotionClient;
@@ -29,6 +30,7 @@ export const createAppContext = (ctx: Context): AppContext => {
 			MessageProxyBaseUrl: env<{ HOST: string }>(ctx).HOST,
 			StorageBucketName: env<{ CFR2_BUCKET_NAME: string }>(ctx)
 				.CFR2_BUCKET_NAME,
+			StoragePublicUrl: env<{ CFR2_PUBLIC_URL: string }>(ctx).CFR2_PUBLIC_URL,
 		},
 		getOpenAI: () => {
 			if (!openai) {
