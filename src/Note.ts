@@ -1,14 +1,12 @@
 import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
 import { toMarkdownV2 } from "@telegraf/entity";
-import { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
 import { markdownToBlocks } from "@tryfabric/martian";
 import { Message, MessageEntity } from "grammy/types";
-import * as z from "zod";
 import { AppContext } from "./AppContext";
-import { createFileHandle, serializeFileHandle } from "./FileHandle";
 import { isWebpageUrl } from "./common/isWebpageUrl";
 import { generateSummary } from "./openai/generateSummary";
 import { generateUrlSummary } from "./openai/generateUrlSummary";
+import { toTelegrafMessageEntity } from "./telegram/toTelegrafMessageEntity";
 
 export type Note = {
 	summary: string;
@@ -80,7 +78,8 @@ export async function createNoteFromUrlMessage(
 
 export async function createNoteFromPhotoMessage(
 	app_ctx: AppContext,
-	message: Pick<Message.PhotoMessage, "photo" | "caption" | "caption_entities">,
+	message: Pick<Message.PhotoMessage, "caption" | "caption_entities">,
+	link_to_photo: string,
 ): Promise<Note> {
 	let summary: string;
 	if (message.caption) {
@@ -99,7 +98,7 @@ export async function createNoteFromPhotoMessage(
 			image: {
 				type: "external",
 				external: {
-					url: generatePhotoUrl(app_ctx, message),
+					url: link_to_photo,
 				},
 			},
 		},
@@ -120,78 +119,4 @@ export async function createNoteFromPhotoMessage(
 		summary,
 		page_content: page_content as BlockObjectRequest[],
 	};
-}
-
-function generatePhotoUrl(
-	app_ctx: AppContext,
-	message: Pick<Message.PhotoMessage, "photo">,
-): string {
-	return new URL(
-		`/file/${serializeFileHandle(
-			createFileHandle(message.photo[message.photo.length - 1].file_id, ".jpg"),
-		)}`,
-		app_ctx.Settings.MessageProxyBaseUrl,
-	).toString();
-}
-
-function toTelegrafMessageEntity(
-	entity: MessageEntity,
-): TelegrafMessageEntity | undefined {
-	switch (entity.type) {
-		case "mention":
-		case "hashtag":
-		case "cashtag":
-		case "bot_command":
-		case "url":
-		case "email":
-		case "phone_number":
-		case "bold":
-		case "italic":
-		case "underline":
-		case "strikethrough":
-		case "spoiler":
-		case "code":
-			return {
-				type: entity.type,
-				offset: entity.offset,
-				length: entity.length,
-			};
-		case "pre":
-			return {
-				type: "pre",
-				offset: entity.offset,
-				length: entity.length,
-				language: entity.language,
-			};
-		case "text_link":
-			return {
-				type: "text_link",
-				offset: entity.offset,
-				length: entity.length,
-				url: entity.url,
-			};
-		case "text_mention":
-			return {
-				type: "text_mention",
-				offset: entity.offset,
-				length: entity.length,
-				user: {
-					id: entity.user.id,
-					is_bot: entity.user.is_bot,
-					first_name: entity.user.first_name,
-					last_name: entity.user.last_name,
-					username: entity.user.username,
-					language_code: entity.user.language_code,
-				},
-			};
-		case "custom_emoji":
-			return {
-				type: "custom_emoji",
-				offset: entity.offset,
-				length: entity.length,
-				custom_emoji_id: entity.custom_emoji_id,
-			};
-		default:
-			return undefined;
-	}
 }

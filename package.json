@@ -8,6 +8,7 @@
     "@telegraf/types": "^6.9.1",
     "@types/bun": "latest",
     "@types/jsdom": "^21.1.6",
+    "@types/uuid": "^9.0.8",
     "husky": "^9.0.10",
     "lint-staged": "^15.2.1",
     "wrangler": "^3.25.0"
@@ -16,6 +17,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.504.0",
     "@mozilla/readability": "^0.5.0",
     "@notionhq/client": "^2.2.14",
     "@telegraf/entity": "^0.4.0",
@@ -26,6 +28,7 @@
     "jsdom": "^24.0.0",
     "mime": "^4.0.1",
     "openai": "^4.25.0",
+    "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
   "scripts": {
