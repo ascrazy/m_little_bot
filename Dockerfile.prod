@@ -11,12 +11,16 @@ RUN bun install
 # NOTE: set-webhook.js is built with target=node in order to avoid inlining process.env variables
 # https://stackoverflow.com/questions/77097759/bun-build-replace-references-to-env-vars-with-actual-values-when-bundling
 RUN bun build --target=node --outfile=build/set-webhook.js scripts/set-webhook.ts
-RUN bun build --target=bun --outfile=build/index.js src/index.ts
+# NOTE: excluding jsdom from the build because bun is unable to fully bundle it which results in
+#   Cannot find module "/workspace/node_modules/jsdom/lib/jsdom/living/xhr/xhr-sync-worker.js" from "/workspace/build/index.js"
+RUN bun build --target=bun --external=jsdom --outfile=build/index.js src/index.ts
 
 FROM oven/bun:alpine
 
 WORKDIR /app
 
+RUN bun install --global jsdom
+
 COPY --from=builder /app/build /app
 
-CMD bun run set-webhook.js && bun run ./index.js
+CMD bun run ./set-webhook.js && bun run ./index.js
