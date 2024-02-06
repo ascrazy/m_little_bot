@@ -1,14 +1,11 @@
-import { Readable } from "node:stream";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { Bot } from "grammy";
-import mime from "mime";
-import { v4 as uuidv4 } from "uuid";
 import { AppContext } from "../AppContext";
+import { createAttachmentFromUrl } from "../Attachment";
 import { createNoteFromPhotoMessage, createNoteFromTextMessage } from "../Note";
-import { copyExtname } from "../common/copyExtname";
 import { createCollapsibleJSONBlock } from "../notion/createCollapsibleJSONBlock";
 import { createHeadingBlock } from "../notion/createHeadingBlock";
+import { getFileLink } from "./getFileLink";
 
 export const createGrammyBot = (app_ctx: AppContext, token: string) => {
 	const bot = new Bot(token);
@@ -63,48 +60,19 @@ export const createGrammyBot = (app_ctx: AppContext, token: string) => {
 
 	bot.on("message:photo", async (ctx) => {
 		try {
-			const file = await bot.api.getFile(
+			const { url, content_type } = await getFileLink(
+				bot,
 				ctx.message.photo[ctx.message.photo.length - 1].file_id,
 			);
-			if (!file.file_path) {
-				throw new Error("Could not get file path from telegram API");
-			}
-			const url = new URL(
-				`/file/bot${bot.token}/${file.file_path}`,
-				"https://api.telegram.org/",
+			const attachment = await createAttachmentFromUrl(
+				app_ctx,
+				url,
+				content_type,
 			);
-			const res = await fetch(url.toString());
-
-			if (!res.ok || !res.body) {
-				throw Error("Could not fetch file from telegram API");
-			}
-
-			const s3client = app_ctx.getStorageClient();
-
-			const file_key = copyExtname(uuidv4(), file.file_path);
-
-			await s3client.send(
-				new PutObjectCommand({
-					Bucket: app_ctx.Settings.StorageBucketName,
-					Key: file_key,
-					// biome-ignore lint: lint/suspicious/noExplicitAny
-					Body: Readable.fromWeb(res.body as any),
-					Metadata: {
-						"Content-Type":
-							mime.getType(file.file_path) || "application/octet-stream",
-					},
-				}),
-			);
-
-			const link_to_photo = app_ctx.Settings.StoragePublicUrl.replace(
-				"%file_key%",
-				file_key,
-			);
-
 			const note = await createNoteFromPhotoMessage(
 				app_ctx,
 				ctx.message,
-				link_to_photo,
+				attachment,
 			);
 			const notion_response = await app_ctx.getNotionClient().pages.create({
 				parent: {

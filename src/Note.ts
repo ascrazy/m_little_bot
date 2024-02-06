@@ -3,6 +3,7 @@ import { toMarkdownV2 } from "@telegraf/entity";
 import { markdownToBlocks } from "@tryfabric/martian";
 import { Message, MessageEntity } from "grammy/types";
 import { AppContext } from "./AppContext";
+import { Attachment } from "./Attachment";
 import { isWebpageUrl } from "./common/isWebpageUrl";
 import { generateSummary } from "./openai/generateSummary";
 import { generateUrlSummary } from "./openai/generateUrlSummary";
@@ -79,7 +80,7 @@ export async function createNoteFromUrlMessage(
 export async function createNoteFromPhotoMessage(
 	app_ctx: AppContext,
 	message: Pick<Message.PhotoMessage, "caption" | "caption_entities">,
-	link_to_photo: string,
+	attachment: Attachment,
 ): Promise<Note> {
 	let summary: string;
 	if (message.caption) {
@@ -98,7 +99,7 @@ export async function createNoteFromPhotoMessage(
 			image: {
 				type: "external",
 				external: {
-					url: link_to_photo,
+					url: attachment.public_url,
 				},
 			},
 		},
