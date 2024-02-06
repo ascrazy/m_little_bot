@@ -1,5 +1,5 @@
-// import { Readability } from "@mozilla/readability";
-// import { JSDOM } from "jsdom";
+import { Readability } from "@mozilla/readability";
+import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { AppContext } from "../AppContext";
 
@@ -25,15 +25,15 @@ export async function generateUrlSummary(
 	app_ctx: AppContext,
 	url: string,
 ): Promise<UrlSummary> {
-	// try {
-	// 	return await generateUrlSummary__readability(url);
-	// } catch (error) {
-	// 	console.error(
-	// 		`Failed to generateUrlSummary__readability: ${(error as Error).message}`,
-	// 	);
+	try {
+		return await generateUrlSummary__readability(url);
+	} catch (error) {
+		console.error(
+			`Failed to generateUrlSummary__readability: ${(error as Error).message}`,
+		);
 
-	return await generateUrlSummary__openai(app_ctx, url);
-	// }
+		return await generateUrlSummary__openai(app_ctx, url);
+	}
 }
 
 export async function generateUrlSummary__openai(
@@ -65,22 +65,22 @@ export async function generateUrlSummary__openai(
 	return parseUrlSummary(response.choices[0].message.content ?? "");
 }
 
-// async function generateUrlSummary__readability(
-// 	url: string,
-// ): Promise<UrlSummary> {
-// 	const response = await fetch(url);
-// 	const html = await response.text();
+async function generateUrlSummary__readability(
+	url: string,
+): Promise<UrlSummary> {
+	const response = await fetch(url);
+	const html = await response.text();
 
-// 	const dom = new JSDOM(html, { url: url });
-// 	const reader = new Readability(dom.window.document);
-// 	const article = reader.parse();
+	const dom = new JSDOM(html, { url: url });
+	const reader = new Readability(dom.window.document);
+	const article = reader.parse();
 
-// 	if (article?.title && article?.excerpt) {
-// 		return {
-// 			short: article.title,
-// 			long: article.excerpt,
-// 		};
-// 	}
+	if (article?.title && article?.excerpt) {
+		return {
+			short: article.title,
+			long: article.excerpt,
+		};
+	}
 
-// 	throw new Error(`Failed to parse UrlSummary from ${url}`);
-// }
+	throw new Error(`Failed to parse UrlSummary from ${url}`);
+}
