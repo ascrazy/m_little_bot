@@ -2,12 +2,26 @@ import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { AppContext } from "../AppContext";
+import { chainOfResponsibility } from "../common/chainOfResponsibility";
 import { messageFromError } from "../common/messageFromError";
+import { UrlSummary, UrlSummarySchema } from "./UrlSummary";
 
-const UrlSummarySchema = z.object({
-	short: z.string(),
-	long: z.string(),
-});
+export async function generateUrlSummary(
+	app_ctx: AppContext,
+	url: string,
+): Promise<UrlSummary> {
+	try {
+		return await chainOfResponsibility([
+			() => generateUrlSummary__readability(url),
+			() => generateUrlSummary__openai(app_ctx, url),
+		]);
+	} catch (err) {
+		return {
+			short: "(could not generate summary)",
+			long: messageFromError(err),
+		};
+	}
+}
 
 const UrlSummaryErrorSchema = z.object({
 	status: z.literal("error"),
@@ -18,8 +32,6 @@ const OpenAISummaryResponseSchema = z.union([
 	UrlSummarySchema.extend({ status: z.literal("ok") }),
 	UrlSummaryErrorSchema,
 ]);
-
-type UrlSummary = z.infer<typeof UrlSummarySchema>;
 
 function parseOpenAISummaryResponse(input: string): UrlSummary {
 	try {
@@ -37,23 +49,6 @@ function parseOpenAISummaryResponse(input: string): UrlSummary {
 		throw new Error(
 			`Failed to parse UrlSummary (${(error as Error).message}): ${input}`,
 		);
-	}
-}
-
-export async function generateUrlSummary(
-	app_ctx: AppContext,
-	url: string,
-): Promise<UrlSummary> {
-	try {
-		return await chainOfResponsibility([
-			() => generateUrlSummary__readability(url),
-			() => generateUrlSummary__openai(app_ctx, url),
-		]);
-	} catch (err) {
-		return {
-			short: "(could not generate summary)",
-			long: messageFromError(err),
-		};
 	}
 }
 
@@ -105,28 +100,4 @@ async function generateUrlSummary__readability(
 	}
 
 	throw new Error(`Failed to parse UrlSummary from ${url}`);
-}
-
-// Credits: ChatGPT 4
-function chainOfResponsibility<T>(funcs: (() => Promise<T>)[]): Promise<T> {
-	return new Promise((resolve, reject) => {
-		let currentIndex = 0;
-
-		const executeNext = () => {
-			if (currentIndex >= funcs.length) {
-				reject(Error("All functions failed"));
-				return;
-			}
-
-			const currentFunc = funcs[currentIndex];
-			currentFunc()
-				.then((result) => resolve(result))
-				.catch(() => {
-					currentIndex++;
-					executeNext();
-				});
-		};
-
-		executeNext();
-	});
 }
