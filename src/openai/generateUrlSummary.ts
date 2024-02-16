@@ -2,18 +2,37 @@ import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { AppContext } from "../AppContext";
+import { messageFromError } from "../common/messageFromError";
 
 const UrlSummarySchema = z.object({
 	short: z.string(),
 	long: z.string(),
 });
 
+const UrlSummaryErrorSchema = z.object({
+	status: z.literal("error"),
+	reason: z.string(),
+});
+
+const OpenAISummaryResponseSchema = z.union([
+	UrlSummarySchema.extend({ status: z.literal("ok") }),
+	UrlSummaryErrorSchema,
+]);
+
 type UrlSummary = z.infer<typeof UrlSummarySchema>;
 
-function parseUrlSummary(input: string): UrlSummary {
+function parseOpenAISummaryResponse(input: string): UrlSummary {
 	try {
 		const parsed = JSON.parse(input);
-		return UrlSummarySchema.parse(parsed);
+		const response = OpenAISummaryResponseSchema.parse(parsed);
+		if (response.status === "ok") {
+			return {
+				short: response.short,
+				long: response.long,
+			};
+		}
+
+		throw new Error(response.reason);
 	} catch (error) {
 		throw new Error(
 			`Failed to parse UrlSummary (${(error as Error).message}): ${input}`,
@@ -26,13 +45,15 @@ export async function generateUrlSummary(
 	url: string,
 ): Promise<UrlSummary> {
 	try {
-		return await generateUrlSummary__readability(url);
-	} catch (error) {
-		console.error(
-			`Failed to generateUrlSummary__readability: ${(error as Error).message}`,
-		);
-
-		return await generateUrlSummary__openai(app_ctx, url);
+		return await chainOfResponsibility([
+			() => generateUrlSummary__readability(url),
+			() => generateUrlSummary__openai(app_ctx, url),
+		]);
+	} catch (err) {
+		return {
+			short: "(could not generate summary)",
+			long: messageFromError(err),
+		};
 	}
 }
 
@@ -50,7 +71,8 @@ export async function generateUrlSummary__openai(
 						"provide both summaries in the same language as the source article. " +
 						"keep short summary under 100 characters maximum and use plain text only. " +
 						"keep long summary under 500 characters maximum and use basic markdown for formatting. " +
-						"reply with JSON of the following format {short: string; long: string}. " +
+						"reply with JSON of the following format {status: 'ok', short: string; long: string}. " +
+						"in case you are unable to generate summaries, reply with JSON of the following format { status: 'error', reason: string }" +
 						"reply with JSON only",
 				},
 				{ role: "user", content: url },
@@ -62,7 +84,7 @@ export async function generateUrlSummary__openai(
 		},
 	);
 
-	return parseUrlSummary(response.choices[0].message.content ?? "");
+	return parseOpenAISummaryResponse(response.choices[0].message.content ?? "");
 }
 
 async function generateUrlSummary__readability(
@@ -83,4 +105,28 @@ async function generateUrlSummary__readability(
 	}
 
 	throw new Error(`Failed to parse UrlSummary from ${url}`);
+}
+
+// Credits: ChatGPT 4
+function chainOfResponsibility<T>(funcs: (() => Promise<T>)[]): Promise<T> {
+	return new Promise((resolve, reject) => {
+		let currentIndex = 0;
+
+		const executeNext = () => {
+			if (currentIndex >= funcs.length) {
+				reject(Error("All functions failed"));
+				return;
+			}
+
+			const currentFunc = funcs[currentIndex];
+			currentFunc()
+				.then((result) => resolve(result))
+				.catch(() => {
+					currentIndex++;
+					executeNext();
+				});
+		};
+
+		executeNext();
+	});
 }
