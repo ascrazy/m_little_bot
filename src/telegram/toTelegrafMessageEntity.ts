@@ -58,6 +58,12 @@ export function toTelegrafMessageEntity(
 				length: entity.length,
 				custom_emoji_id: entity.custom_emoji_id,
 			};
+		case "blockquote":
+			return {
+				type: "blockquote",
+				offset: entity.offset,
+				length: entity.length,
+			};
 		default:
 			return undefined;
 	}

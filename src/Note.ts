@@ -1,5 +1,4 @@
 import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
-import { toMarkdownV2 } from "@telegraf/entity";
 import { markdownToBlocks } from "@tryfabric/martian";
 import { Message, MessageEntity } from "grammy/types";
 import { AppContext } from "./AppContext";
@@ -7,6 +6,7 @@ import { Attachment } from "./Attachment";
 import { isWebpageUrl } from "./common/isWebpageUrl";
 import { generateSummary } from "./openai/generateSummary";
 import { generateUrlSummary } from "./openai/generateUrlSummary";
+import { toGhMarkdown } from "./telegram/ghMarkdownSerializer";
 import { toTelegrafMessageEntity } from "./telegram/toTelegrafMessageEntity";
 
 export type Note = {
@@ -29,7 +29,7 @@ export async function createNoteFromTextMessage(
 		"Could not generate summary";
 
 	const page_content = markdownToBlocks(
-		toMarkdownV2({
+		toGhMarkdown({
 			text: message.text,
 			entities:
 				message.entities
@@ -105,7 +105,7 @@ export async function createNoteFromPhotoMessage(
 		},
 		...(message.caption
 			? markdownToBlocks(
-					toMarkdownV2({
+					toGhMarkdown({
 						text: message.caption,
 						entities:
 							message.caption_entities
