@@ -1,4 +1,4 @@
-import { AppContext } from "../AppContext";
+import type { AppContext } from "../AppContext";
 
 export async function generateSummary(
 	app_ctx: AppContext,

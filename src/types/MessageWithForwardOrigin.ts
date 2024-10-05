@@ -1,4 +1,4 @@
-import { Message, MessageOrigin } from "grammy/types";
+import type { Message, MessageOrigin } from "grammy/types";
 
 export type MessageWithForwardOrigin = Message.CommonMessage & {
 	forward_origin: MessageOrigin;

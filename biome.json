@@ -15,6 +15,7 @@
 	"files": {
 		"ignore": [
 			"node_modules/*",
+			"build/*",
 			".env",
 			".env.*",
 			".devcontainer/devcontainer.json",

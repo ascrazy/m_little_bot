@@ -1,8 +1,8 @@
 import type { BlockObjectRequest } from "@notionhq/client/build/src/api-endpoints";
 import { markdownToBlocks } from "@tryfabric/martian";
-import { Message, MessageEntity } from "grammy/types";
-import { AppContext } from "./AppContext";
-import { Attachment } from "./Attachment";
+import type { Message, MessageEntity } from "grammy/types";
+import type { AppContext } from "./AppContext";
+import type { Attachment } from "./Attachment";
 import { isWebpageUrl } from "./common/isWebpageUrl";
 import { generateSummary } from "./openai/generateSummary";
 import { generateUrlSummary } from "./openai/generateUrlSummary";
@@ -112,7 +112,7 @@ export async function createNoteFromPhotoMessage(
 								?.map(toTelegrafMessageEntity)
 								.flatMap((f) => (f ? [f] : [])) ?? [],
 					}),
-			  )
+				)
 			: []),
 	];
 

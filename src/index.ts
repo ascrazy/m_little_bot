@@ -1,5 +1,5 @@
 import { Api as TelegramApi, webhookCallback } from "grammy";
-import { Context, Hono } from "hono";
+import { type Context, Hono } from "hono";
 import { env } from "hono/adapter";
 import { stream } from "hono/streaming";
 import mime from "mime";

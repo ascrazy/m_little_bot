@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import type { Bot } from "grammy";
 import mime from "mime";
 
 export async function getFileLink(

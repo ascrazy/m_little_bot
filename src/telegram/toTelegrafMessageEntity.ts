@@ -1,5 +1,5 @@
-import { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
-import { MessageEntity } from "grammy/types";
+import type { MessageEntity as TelegrafMessageEntity } from "@telegraf/types";
+import type { MessageEntity } from "grammy/types";
 
 export function toTelegrafMessageEntity(
 	entity: MessageEntity,
