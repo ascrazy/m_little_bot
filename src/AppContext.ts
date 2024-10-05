@@ -1,6 +1,6 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { Client as NotionClient } from "@notionhq/client";
-import { Context } from "hono";
+import type { Context } from "hono";
 import { env } from "hono/adapter";
 import OpenAI from "openai";
 

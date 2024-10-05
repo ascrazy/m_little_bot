@@ -1,8 +1,8 @@
+import { format } from "node:path";
 import { Readable } from "node:stream";
-import { format } from "path";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
-import { AppContext } from "./AppContext";
+import type { AppContext } from "./AppContext";
 import { getExtname } from "./common/getExtname";
 
 export type Attachment = {
@@ -40,7 +40,7 @@ export async function createAttachmentFromUrl(
 			Metadata: content_type
 				? {
 						"Content-Type": content_type,
-				  }
+					}
 				: undefined,
 		}),
 	);

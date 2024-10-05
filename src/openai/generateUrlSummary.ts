@@ -1,10 +1,10 @@
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
-import { AppContext } from "../AppContext";
+import type { AppContext } from "../AppContext";
 import { chainOfResponsibility } from "../common/chainOfResponsibility";
 import { messageFromError } from "../common/messageFromError";
-import { UrlSummary, UrlSummarySchema } from "./UrlSummary";
+import { type UrlSummary, UrlSummarySchema } from "./UrlSummary";
 
 export async function generateUrlSummary(
 	app_ctx: AppContext,

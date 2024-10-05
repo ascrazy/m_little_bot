@@ -1,4 +1,4 @@
-import { serialiseWith, serialisers } from "@telegraf/entity";
+import { serialiseWith, type serialisers } from "@telegraf/entity";
 
 type Serialiser = typeof serialisers.HTML;
 
