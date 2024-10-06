@@ -1,12 +1,18 @@
 name: ci
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
 
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -25,3 +31,28 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun biome:ci
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, biome]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: i.alexandr.sh@gmail.com
+          password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with: 
+          images: |
+            registry.digitalocean.com/ascrazy/m_little_bot
+          tags: |
+            type=raw,value=latest,enable=${{ env.BRANCH_NAME == 'master' }}
+            type=raw,value=${{ env.BRANCH_NAME }},enable=true
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.prod
+          push: ${{ env.BRANCH_NAME == 'master' }}
+          tags: ${{ steps.meta.outputs.tags }}
