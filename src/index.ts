@@ -92,7 +92,7 @@ app.get("/file/:file_handle", async (ctx) => {
 	}
 });
 
-app.post("/telegram-bot-webhook/:secret", (ctx, next) => {
+app.post("/telegram-bot-webhook/:secret", async (ctx) => {
 	if (
 		ctx.req.param("secret") !==
 		env<{ TELEGRAM_WEBHOOK_SECRET: string }>(ctx).TELEGRAM_WEBHOOK_SECRET
@@ -101,7 +101,7 @@ app.post("/telegram-bot-webhook/:secret", (ctx, next) => {
 		return ctx.json({ status: "bad", message: "Unauthorized" }, 401);
 	}
 	const bot = createBotFromContext(ctx);
-	return webhookCallback(bot, "hono")(ctx, next);
+	return await webhookCallback(bot, "hono")(ctx);
 });
 
 export default app;
