@@ -82,42 +82,31 @@ export async function createNoteFromPhotoMessage(
 	message: Pick<Message.PhotoMessage, "caption" | "caption_entities">,
 	attachment: Attachment,
 ): Promise<Note> {
-	let summary: string;
-	if (message.caption) {
-		summary =
-			(await generateTextSummary(app_ctx, message.caption)) ??
-			"Could not generate summary";
-	} else {
-		// TODO: generate caption from image with openai
-		summary = "Image (no caption)";
-	}
-
-	const page_content = [
-		{
-			object: "block",
-			type: "image",
-			image: {
-				type: "external",
-				external: {
-					url: attachment.public_url,
-				},
+	const image_block: BlockObjectRequest = {
+		object: "block",
+		type: "image",
+		image: {
+			type: "external",
+			external: {
+				url: attachment.public_url,
 			},
 		},
-		...(message.caption
-			? markdownToBlocks(
-					toGhMarkdown({
-						text: message.caption,
-						entities:
-							message.caption_entities
-								?.map(toTelegrafMessageEntity)
-								.flatMap((f) => (f ? [f] : [])) ?? [],
-					}),
-				)
-			: []),
-	];
+	}
+
+	if (!message.caption) {
+		return {
+			summary: "Image (no caption)",
+			page_content: [image_block],
+		}
+	}
+
+	const text_note = await createNoteFromTextMessage(app_ctx, {
+		text: message.caption,
+		entities: message.caption_entities,
+	});
 
 	return {
-		summary,
-		page_content: page_content as BlockObjectRequest[],
-	};
+		...text_note,
+		page_content: [image_block, ...text_note.page_content],
+	}
 }
