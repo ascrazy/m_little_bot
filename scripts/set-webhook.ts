@@ -14,6 +14,10 @@ async function main() {
 
 	await bot.api.setWebhook(webhook_url);
 
+	await bot.api.setMyCommands([
+		{ command: "/top", description: "List most recent entries from the Inbox" },
+	]);
+
 	console.log(`Done. Webhook set to ${webhook_url}`);
 }
 
