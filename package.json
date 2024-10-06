@@ -7,7 +7,7 @@
 		"@cloudflare/workers-types": "^4.20241004.0",
 		"@types/bun": "latest",
 		"@types/jsdom": "^21.1.7",
-		"@types/uuid": "^9.0.8",
+		"@types/uuid": "^10.0.0",
 		"wrangler": "^3.80.0"
 	},
 	"peerDependencies": {
@@ -26,7 +26,7 @@
 		"jsdom": "^25.0.1",
 		"mime": "^4.0.4",
 		"openai": "^4.67.1",
-		"uuid": "^9.0.1",
+		"uuid": "^10.0.0",
 		"zod": "^3.23.8"
 	},
 	"scripts": {
