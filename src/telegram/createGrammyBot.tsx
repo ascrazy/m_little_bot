@@ -2,7 +2,8 @@ import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoint
 import { Bot } from "grammy";
 import type { AppContext } from "../AppContext";
 import { createAttachmentFromUrl } from "../Attachment";
-import { createNoteFromPhotoMessage, createNoteFromTextMessage } from "../Note";
+import { createNoteFromPhotoMessage } from "../note/createNoteFromPhotoMessage";
+import { createNoteFromTextMessage } from "../note/createNoteFromTextMessage";
 import { createCollapsibleJSONBlock } from "../notion/createCollapsibleJSONBlock";
 import { createHeadingBlock } from "../notion/createHeadingBlock";
 import { getFileLink } from "./getFileLink";
