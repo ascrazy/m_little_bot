@@ -4,8 +4,8 @@ import type { Message, MessageEntity } from "grammy/types";
 import type { AppContext } from "./AppContext";
 import type { Attachment } from "./Attachment";
 import { isWebpageUrl } from "./common/isWebpageUrl";
-import { generateSummary } from "./openai/generateSummary";
-import { generateUrlSummary } from "./openai/generateUrlSummary";
+import { generateTextSummary } from "./summarization/generateTextSummary";
+import { generateUrlSummary } from "./summarization/generateUrlSummary";
 import { toGhMarkdown } from "./telegram/ghMarkdownSerializer";
 import { toTelegrafMessageEntity } from "./telegram/toTelegrafMessageEntity";
 
@@ -25,7 +25,7 @@ export async function createNoteFromTextMessage(
 	}
 
 	const summary =
-		(await generateSummary(app_ctx, message.text)) ??
+		(await generateTextSummary(app_ctx, message.text)) ??
 		"Could not generate summary";
 
 	const page_content = markdownToBlocks(
@@ -85,7 +85,7 @@ export async function createNoteFromPhotoMessage(
 	let summary: string;
 	if (message.caption) {
 		summary =
-			(await generateSummary(app_ctx, message.caption)) ??
+			(await generateTextSummary(app_ctx, message.caption)) ??
 			"Could not generate summary";
 	} else {
 		// TODO: generate caption from image with openai
