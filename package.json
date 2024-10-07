@@ -26,6 +26,7 @@
 		"jsdom": "^25.0.1",
 		"mime": "^4.0.4",
 		"openai": "^4.67.1",
+		"prettier": "^3.3.3",
 		"uuid": "^10.0.0",
 		"zod": "^3.23.8"
 	},
@@ -37,6 +38,8 @@
 		"worker-deploy": "bun worker-build && wrangler deploy --minify build/worker.js",
 		"biome:check": "bunx @biomejs/biome check .",
 		"biome:fix": "bunx @biomejs/biome check --fix .",
-		"biome:ci": "bunx @biomejs/biome ci --reporter=github ."
+		"biome:ci": "bunx @biomejs/biome ci --reporter=github .",
+		"prettier:check": "prettier --check **/*.yml",
+		"prettier:fix": "prettier --write **/*.yml"
 	}
 }
