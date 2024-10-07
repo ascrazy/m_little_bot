@@ -23,7 +23,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun test
-  
+
   biome:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
           password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - uses: docker/metadata-action@v5
         id: meta
-        with: 
+        with:
           images: |
             registry.digitalocean.com/ascrazy/m_little_bot
           tags: |
