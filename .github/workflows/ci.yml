@@ -16,28 +16,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  install-deps:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install
+      - name: Cache bun dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+  test:
+    runs-on: ubuntu-latest
+    needs: install-deps
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: ~/.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+      - uses: oven-sh/setup-bun@v2
       - run: bun test
 
   biome:
     runs-on: ubuntu-latest
+    needs: install-deps
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: ~/.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
       - run: bun biome:ci
 
   prettier:
     runs-on: ubuntu-latest
+    needs: install-deps
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: ~/.bun
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
       - run: bun prettier:check
 
   build:
