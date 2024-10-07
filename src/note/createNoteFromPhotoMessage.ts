@@ -19,13 +19,13 @@ export async function createNoteFromPhotoMessage(
 				url: attachment.public_url,
 			},
 		},
-	}
+	};
 
 	if (!message.caption) {
 		return {
 			summary: "Image (no caption)",
 			page_content: [image_block],
-		}
+		};
 	}
 
 	const text_note = await createNoteFromTextMessage(app_ctx, {
@@ -36,5 +36,5 @@ export async function createNoteFromPhotoMessage(
 	return {
 		...text_note,
 		page_content: [image_block, ...text_note.page_content],
-	}
+	};
 }

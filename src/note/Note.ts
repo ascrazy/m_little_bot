@@ -4,4 +4,3 @@ export type Note = {
 	summary: string;
 	page_content: BlockObjectRequest[];
 };
-
