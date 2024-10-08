@@ -1,41 +1,17 @@
 {
-	"name": "m_little_bot",
-	"module": "src/index.ts",
-	"type": "module",
+	"name": "mlb",
+	"version": "1.0.0",
+	"private": true,
+	"workspaces": ["packages/*"],
 	"devDependencies": {
 		"@biomejs/biome": "1.9.3",
-		"@cloudflare/workers-types": "^4.20241004.0",
-		"@types/bun": "latest",
-		"@types/jsdom": "^21.1.7",
-		"@types/uuid": "^10.0.0",
-		"wrangler": "^3.80.1"
+		"prettier": "^3.3.3"
 	},
 	"peerDependencies": {
 		"typescript": "^5.3.3"
 	},
-	"dependencies": {
-		"@aws-sdk/client-s3": "^3.666.0",
-		"@mozilla/readability": "^0.5.0",
-		"@notionhq/client": "^2.2.15",
-		"@telegraf/entity": "^0.5.0",
-		"@telegraf/types": "^7.1.0",
-		"@tryfabric/martian": "^1.2.4",
-		"date-fns": "^4.1.0",
-		"grammy": "^1.30.0",
-		"hono": "^4.6.3",
-		"jsdom": "^25.0.1",
-		"mime": "^4.0.4",
-		"openai": "^4.67.2",
-		"prettier": "^3.3.3",
-		"uuid": "^10.0.0",
-		"zod": "^3.23.8"
-	},
+	"dependencies": {},
 	"scripts": {
-		"dev": "bun run --hot src/index.ts",
-		"build": "bun build --target=bun --outfile=build/index.js src/index.ts",
-		"worker-dev": "wrangler dev src/index.ts",
-		"worker-build": "bun build --target=node --outfile=build/worker.js",
-		"worker-deploy": "bun worker-build && wrangler deploy --minify build/worker.js",
 		"biome:check": "bunx @biomejs/biome check .",
 		"biome:fix": "bunx @biomejs/biome check --fix .",
 		"biome:ci": "bunx @biomejs/biome ci --reporter=github .",

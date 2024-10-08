@@ -1,0 +1,6 @@
+{
+	"extends": "../../tsconfig.json",
+	"types": ["@types/bun", "@cloudflare/workers-types"],
+	"jsx": "react-jsx",
+	"jsxImportSource": "hono/jsx"
+}
